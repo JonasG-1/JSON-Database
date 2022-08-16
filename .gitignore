@@ -1,0 +1,18 @@
+# Task
+/JSON Database/*/
+/JSON Database/task/test/
+/JSON Database/task/build/
+/JSON Database/task/out/
+!/JSON Database/task/
+
+# Idea
+/.idea/
+*.yaml
+
+# Gradle
+/.gradle/
+/gradle/
+*.gradle
+gradlew
+gradlew.bat
+
