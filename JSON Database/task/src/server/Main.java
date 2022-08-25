@@ -1,19 +1,45 @@
 package server;
 
-import java.util.Scanner;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Main {
 
-    private static final String GET = "get";
+    /*private static final String GET = "get";
     private static final String SET = "set";
     private static final String DELETE = "delete";
     private static final String EXIT = "exit";
     private static final String OK = "OK";
     private static final String ERR = "ERROR";
-    private static final String[] database = new String[100];
+    private static final String[] database = new String[100];*/
+    private static final int PORT = 23456;
 
 
     public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(PORT)) {
+            System.out.println("Server started!");
+            //Session session = new Session(serverSocket.accept());
+            try (
+                    Socket socket = serverSocket.accept();
+                    DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                    DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())
+            ) {
+                String out = "A record # 12 was sent!";
+                String in = inputStream.readUTF();
+                System.out.println("Received: " + in);
+                System.out.println("Sent: " + out);
+                outputStream.writeUTF(out);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    /*public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
 
         boolean exit = false;
@@ -74,5 +100,5 @@ public class Main {
 
     private static void printStatus(String data) {
         System.out.println(data);
-    }
+    }*/
 }

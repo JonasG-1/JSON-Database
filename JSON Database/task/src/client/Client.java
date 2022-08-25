@@ -5,15 +5,20 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class Main {
+public class Client extends Thread {
 
-    public static String ADDRESS = "127.0.0.1";
-    public static int PORT = 23456;
-    public static void main(String[] args) {
-        //Client client = new Client(ADDRESS, PORT);
-        //client.start();
+    private final String address;
+    private final int port;
+
+    public Client(String address, int port) {
+        this.address = address;
+        this.port = port;
+    }
+
+    @Override
+    public void run() {
         try (
-                Socket socket = new Socket(InetAddress.getByName(ADDRESS), PORT);
+                Socket socket = new Socket(InetAddress.getByName(address), port);
                 DataInputStream inputStream = new DataInputStream(socket.getInputStream());
                 DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())
         ) {
