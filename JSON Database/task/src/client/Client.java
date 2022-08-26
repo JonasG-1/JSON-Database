@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
 
-public class Client extends Thread {
+public class Client {
 
     private final String address;
     private final int port;
@@ -15,19 +15,16 @@ public class Client extends Thread {
         this.port = port;
     }
 
-    @Override
-    public void run() {
+    public void sendMessage(String message) {
         try (
                 Socket socket = new Socket(InetAddress.getByName(address), port);
-                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())
+                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+                DataInputStream inputStream = new DataInputStream(socket.getInputStream())
         ) {
-            System.out.println("Client started!");
-            String out = "Give me a record # 12";
-            outputStream.writeUTF(out);
-            System.out.println("Sent: " + out);
-            String read = inputStream.readUTF();
-            System.out.println("Received: " + read);
+            outputStream.writeUTF(message);
+            System.out.println("Sent: " + message);
+            String in = inputStream.readUTF();
+            System.out.println("Received: " + in);
         } catch (Exception e) {
             e.printStackTrace();
         }
