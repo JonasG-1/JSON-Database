@@ -1,6 +1,6 @@
 package client;
 
-public class ExitStorageCommand implements Command {
+public class ExitStorageCommand implements ICommand {
 
     private final Client client;
 

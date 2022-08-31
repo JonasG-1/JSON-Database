@@ -22,7 +22,7 @@ public class Main {
 
         Controller controller = new Controller();
         Client client = new Client(ADDRESS, PORT);
-        Command command;
+        ICommand command;
 
         switch (mode) {
             case "set" -> command = new SetStorageCommand(client, index, content);

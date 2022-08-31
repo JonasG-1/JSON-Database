@@ -1,8 +1,7 @@
 package server;
 
-public interface Command {
+public enum Command {
 
-    void execute();
+    GET, SET, DELETE, EXIT
 
-    String getStatus();
 }

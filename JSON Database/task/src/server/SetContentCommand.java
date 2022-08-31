@@ -1,6 +1,6 @@
 package server;
 
-public class SetContentCommand implements Command {
+public class SetContentCommand implements ICommand {
 
     private final int index;
     private final String content;

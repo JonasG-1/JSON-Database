@@ -1,6 +1,6 @@
 package client;
 
-public class GetStorageCommand implements Command {
+public class GetStorageCommand implements ICommand {
 
     private final Client client;
     private final int index;

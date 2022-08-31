@@ -1,6 +1,6 @@
 package client;
 
-public interface Command {
+public interface ICommand {
 
     void execute();
 

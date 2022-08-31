@@ -1,6 +1,6 @@
 package server;
 
-public class GetContentCommand implements Command {
+public class GetContentCommand implements ICommand {
 
     private final int index;
     private final Storage storage;

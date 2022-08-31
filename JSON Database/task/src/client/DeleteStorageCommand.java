@@ -1,6 +1,6 @@
 package client;
 
-public class DeleteStorageCommand implements Command {
+public class DeleteStorageCommand implements ICommand {
 
     private final Client client;
     private final int index;

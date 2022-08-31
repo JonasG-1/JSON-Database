@@ -1,6 +1,6 @@
 package server;
 
-public class DeleteContentCommand implements Command {
+public class DeleteContentCommand implements ICommand {
 
     private final int index;
     private final Storage storage;
