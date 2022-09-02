@@ -1,5 +1,7 @@
 package server;
 
+import com.google.gson.Gson;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
@@ -7,7 +9,7 @@ import java.net.Socket;
 
 public class Main {
 
-    private static final Storage storage = new Storage(1000);
+    private static final Storage storage = new Storage();
     private static boolean run = true;
 
 
@@ -36,54 +38,53 @@ public class Main {
         }
     }
 
-    private static void processMessage(DataOutputStream outputStream, String input) {
-        String[] args = input.split(" ");
+    private static void processMessage(DataOutputStream outputStream, String jsonData) {
+        Gson gson = new Gson();
+        JsonAction jsonAction = gson.fromJson(jsonData, JsonAction.class);
         CommandService commandService = new CommandService();
-        Command command = commandService.convert(args[0]);
-        int index = -1;
-        if (args.length > 1) {
-            try {
-                index = Integer.parseInt(args[1]);
-            } catch (Exception e) {
-                sendMessage(outputStream, ResponseType.ERROR.name());
-                return;
-            }
-        }
-        String content = "";
-        if (args.length > 2) {
-            StringBuilder sb = new StringBuilder();
-            for (int i = 2; i < args.length; i++) {
-                sb.append(args[i]).append(" ");
-            }
-            content = sb.toString();
-        }
+        Command command = commandService.convert(jsonAction.getType());
+        String key = jsonAction.getKey();
+        String value = jsonAction.getValue();
 
+        JsonResponse jsonResponse = new JsonResponse();
         Controller controller = new Controller();
-        ICommand action;
+        ICommand iCommand;
 
         switch (command) {
-            case SET -> action = new SetContentCommand(storage, index, content);
-            case GET -> action = new GetContentCommand(storage, index);
-            case DELETE -> action = new DeleteContentCommand(storage, index);
+            case SET -> iCommand = new SetContentCommand(storage, key, value);
+            case GET -> iCommand = new GetContentCommand(storage, key);
+            case DELETE -> iCommand = new DeleteContentCommand(storage, key);
             case EXIT -> {
                 run = false;
-                sendMessage(outputStream, ResponseType.OK.name());
+                jsonResponse.setResponse(true);
+                sendMessage(outputStream, jsonResponse);
                 return;
             }
             default -> {
+                jsonResponse.setResponse(false);
+                sendMessage(outputStream, jsonResponse);
                 return;
             }
         }
 
-        controller.setCommand(action);
+        controller.setCommand(iCommand);
         controller.executeCommand();
-        sendMessage(outputStream, controller.getStatus());
+        boolean response = controller.getResponse();
+        jsonResponse.setResponse(response);
+        if (response) {
+            jsonResponse.setValue(controller.getOutput());
+        } else {
+            jsonResponse.setReason(controller.getOutput());
+        }
+        sendMessage(outputStream, jsonResponse);
     }
 
-    private static void sendMessage(DataOutputStream outputStream, String message) {
+    private static void sendMessage(DataOutputStream outputStream, JsonResponse jsonResponse) {
         try {
-            outputStream.writeUTF(message);
-            System.out.println("Sent: " + message);
+            Gson gson = new Gson();
+            String out = gson.toJson(jsonResponse);
+            outputStream.writeUTF(out);
+            System.out.println("Sent: " + out);
         } catch (Exception e) {
             e.printStackTrace();
         }

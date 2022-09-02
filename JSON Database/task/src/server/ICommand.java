@@ -4,5 +4,7 @@ public interface ICommand {
 
     void execute();
 
-    String getStatus();
+    boolean getResponse();
+
+    String getOutput();
 }

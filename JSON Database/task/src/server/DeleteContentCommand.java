@@ -2,23 +2,32 @@ package server;
 
 public class DeleteContentCommand implements ICommand {
 
-    private final int index;
+    private final String key;
     private final Storage storage;
     private boolean success;
+    private String out;
 
-    public DeleteContentCommand(Storage storage, int index) {
+    public DeleteContentCommand(Storage storage, String key) {
         this.storage = storage;
-        this.index = index;
+        this.key = key;
         this.success = false;
     }
 
     @Override
     public void execute() {
-        success = storage.deleteContent(index);
+        success = storage.deleteContent(key);
+        if (!success) {
+            out = "No such key";
+        }
     }
 
     @Override
-    public String getStatus() {
-        return success ? "OK" : "ERROR";
+    public boolean getResponse() {
+        return success;
+    }
+
+    @Override
+    public String getOutput() {
+        return out;
     }
 }

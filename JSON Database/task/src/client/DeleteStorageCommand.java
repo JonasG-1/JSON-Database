@@ -2,16 +2,17 @@ package client;
 
 public class DeleteStorageCommand implements ICommand {
 
-    private final Client client;
-    private final int index;
+    private final JsonAction jsonAction;
+    private final String key;
 
-    public DeleteStorageCommand(Client client, int index) {
-        this.client = client;
-        this.index = index;
+    public DeleteStorageCommand(JsonAction jsonAction, String key) {
+        this.jsonAction = jsonAction;
+        this.key = key;
     }
 
     @Override
     public void execute() {
-        client.sendMessage(String.format("delete %d", index));
+        jsonAction.setType("delete");
+        jsonAction.setKey(key);
     }
 }

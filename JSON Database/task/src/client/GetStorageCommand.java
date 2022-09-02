@@ -2,16 +2,17 @@ package client;
 
 public class GetStorageCommand implements ICommand {
 
-    private final Client client;
-    private final int index;
+    private final JsonAction jsonAction;
+    private final String key;
 
-    public GetStorageCommand(Client client, int index) {
-        this.client = client;
-        this.index = index;
+    public GetStorageCommand(JsonAction jsonAction, String key) {
+        this.jsonAction = jsonAction;
+        this.key = key;
     }
 
     @Override
     public void execute() {
-        client.sendMessage(String.format("get %d", index));
+        jsonAction.setType("get");
+        jsonAction.setKey(key);
     }
 }

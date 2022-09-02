@@ -2,25 +2,32 @@ package server;
 
 public class SetContentCommand implements ICommand {
 
-    private final int index;
-    private final String content;
+    private final String key;
+    private final String value;
     private final Storage storage;
     private boolean success;
+    private final String out;
 
-    public SetContentCommand(Storage storage, int index, String content) {
+    public SetContentCommand(Storage storage, String key, String value) {
         this.storage = storage;
-        this.index = index;
-        this.content = content;
+        this.key = key;
+        this.value = value;
         success = false;
+        out = null;
     }
 
     @Override
     public void execute() {
-        this.success = storage.setContent(content, index);
+        this.success = storage.setContent(key, value);
     }
 
     @Override
-    public String getStatus() {
-        return success ? "OK" : "ERROR";
+    public boolean getResponse() {
+        return success;
+    }
+
+    @Override
+    public String getOutput() {
+        return out;
     }
 }

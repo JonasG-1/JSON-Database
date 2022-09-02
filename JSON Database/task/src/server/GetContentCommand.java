@@ -2,23 +2,35 @@ package server;
 
 public class GetContentCommand implements ICommand {
 
-    private final int index;
+    private final String key;
     private final Storage storage;
     private String content;
+    private boolean success;
 
-    public GetContentCommand(Storage storage, int index) {
+    public GetContentCommand(Storage storage, String key) {
         this.storage = storage;
-        this.index = index;
+        this.key = key;
         this.content = "ERROR";
+        this.success = false;
     }
 
     @Override
     public void execute() {
-        this.content = storage.getContent(index);
+        this.content = storage.getContent(key);
+        if (content != null) {
+            success = true;
+        } else {
+            content = "No such key";
+        }
     }
 
     @Override
-    public String getStatus() {
-        return this.content == null ? "ERROR" : this.content;
+    public boolean getResponse() {
+        return success;
+    }
+
+    @Override
+    public String getOutput() {
+        return content;
     }
 }

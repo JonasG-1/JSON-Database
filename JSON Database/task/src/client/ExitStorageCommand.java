@@ -2,14 +2,14 @@ package client;
 
 public class ExitStorageCommand implements ICommand {
 
-    private final Client client;
+    private final JsonAction jsonAction;
 
-    public ExitStorageCommand(Client client) {
-        this.client = client;
+    public ExitStorageCommand(JsonAction jsonAction) {
+        this.jsonAction = jsonAction;
     }
 
     @Override
     public void execute() {
-        client.sendMessage("exit");
+        jsonAction.setType("exit");
     }
 }
