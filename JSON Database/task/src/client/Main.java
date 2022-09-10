@@ -1,6 +1,11 @@
 package client;
 
 import com.google.gson.Gson;
+import client.data.FilePath;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 
 public class Main {
 
@@ -18,6 +23,10 @@ public class Main {
                     if ("set".equals(mode)) {
                         value = args[i + 1];
                     }
+                }
+                case "-in" -> {
+                    sendJson(FilePath.getFilePath() + args[i + 1]);
+                    return;
                 }
             }
         }
@@ -41,8 +50,28 @@ public class Main {
         controller.executeCommand();
 
         Gson gson = new Gson();
-        Client client = new Client(ADDRESS, PORT);
         String jsonData = gson.toJson(jsonAction);
-        client.sendMessage(jsonData);
+        send(jsonData);
+    }
+
+    private static void sendJson(String filePath) {
+        try {
+            File file = new File(filePath);
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            StringBuilder builder = new StringBuilder();
+            String current = reader.readLine();
+            while (current != null) {
+                builder.append(current);
+                current = reader.readLine();
+            }
+            send(builder.toString());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void send(String json) {
+        Client client = new Client(ADDRESS, PORT);
+        client.sendMessage(json);
     }
 }

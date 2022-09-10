@@ -1,38 +1,57 @@
 package server;
 
 import com.google.gson.Gson;
+import server.data.FilePath;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class Main {
 
-    private static final Storage storage = new Storage();
+    private static final String JSON_DB = "db.json";
+    private static final String filePath = FilePath.getFilePath().concat(JSON_DB);
+    private static final Storage storage = new Storage(filePath);
     private static boolean run = true;
+    private static ExecutorService executor;
 
 
     public static void main(String[] args) {
         try (ServerSocket serverSocket = new ServerSocket(Constants.PORT)) {
+            executor = Executors.newFixedThreadPool(4);
             System.out.println("Server started!");
             while (run) {
                 acceptConnectionAndInput(serverSocket);
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            executor.shutdown();
         }
     }
 
     private static void acceptConnectionAndInput(ServerSocket serverSocket) {
-        try (
-                Socket socket = serverSocket.accept();
-                DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-                DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())
-        ) {
-            String input = inputStream.readUTF();
-            System.out.println("Received: " + input);
-            processMessage(outputStream, input);
+        try {
+            Socket socket = serverSocket.accept();
+            executor.submit(() -> {
+                try (
+                        DataInputStream inputStream = new DataInputStream(socket.getInputStream());
+                        DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream())
+                ) {
+                    String input = inputStream.readUTF();
+                    System.out.println("Received: " + input);
+                    processMessage(outputStream, input);
+                    socket.close();
+                    if (!run) {
+                        serverSocket.close();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -55,7 +74,7 @@ public class Main {
             case GET -> iCommand = new GetContentCommand(storage, key);
             case DELETE -> iCommand = new DeleteContentCommand(storage, key);
             case EXIT -> {
-                run = false;
+                Main.run = false;
                 jsonResponse.setResponse(true);
                 sendMessage(outputStream, jsonResponse);
                 return;
