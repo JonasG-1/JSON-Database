@@ -1,36 +1,38 @@
 package server;
 
+import com.google.gson.JsonElement;
+
 public class GetContentCommand implements ICommand {
 
-    private final String key;
+    private final JsonElement keyElement;
     private final Storage storage;
-    private String content;
-    private boolean success;
+    private JsonElement value;
+    private String reason;
+    private boolean response;
 
-    public GetContentCommand(Storage storage, String key) {
+    public GetContentCommand(Storage storage, JsonElement keyElement) {
         this.storage = storage;
-        this.key = key;
-        this.content = "ERROR";
-        this.success = false;
+        this.keyElement = keyElement;
+        this.reason = null;
+        this.response = false;
     }
 
     @Override
     public void execute() {
-        this.content = storage.getContent(key);
-        if (content != null) {
-            success = true;
+        this.value = storage.getContent(keyElement);
+        if (value != null) {
+            response = true;
         } else {
-            content = "No such key";
+            reason = "No such key";
         }
     }
 
     @Override
-    public boolean getResponse() {
-        return success;
-    }
-
-    @Override
-    public String getOutput() {
-        return content;
+    public JsonResponse getResponse() {
+        JsonResponse jsonResponse = new JsonResponse();
+        jsonResponse.setResponse(response);
+        jsonResponse.setReason(reason);
+        jsonResponse.setValue(value);
+        return jsonResponse;
     }
 }

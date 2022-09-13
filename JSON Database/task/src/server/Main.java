@@ -1,6 +1,6 @@
 package server;
 
-import com.google.gson.Gson;
+import com.google.gson.*;
 import server.data.FilePath;
 
 import java.io.DataInputStream;
@@ -50,6 +50,11 @@ public class Main {
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
+                    try {
+                        socket.close();
+                    } catch (Exception ex) {
+                        ex.printStackTrace();
+                    }
                 }
             });
         } catch (Exception e) {
@@ -58,21 +63,20 @@ public class Main {
     }
 
     private static void processMessage(DataOutputStream outputStream, String jsonData) {
-        Gson gson = new Gson();
-        JsonAction jsonAction = gson.fromJson(jsonData, JsonAction.class);
+        JsonElement jsonElement = JsonParser.parseString(jsonData);
+        JsonObject jsonObject = jsonElement.getAsJsonObject();
         CommandService commandService = new CommandService();
-        Command command = commandService.convert(jsonAction.getType());
-        String key = jsonAction.getKey();
-        String value = jsonAction.getValue();
-
+        Command command = commandService.convert(jsonObject.get("type").getAsString());
+        JsonElement keyElement = jsonObject.get("key");
+        JsonElement value = jsonObject.get("value");
         JsonResponse jsonResponse = new JsonResponse();
         Controller controller = new Controller();
         ICommand iCommand;
 
         switch (command) {
-            case SET -> iCommand = new SetContentCommand(storage, key, value);
-            case GET -> iCommand = new GetContentCommand(storage, key);
-            case DELETE -> iCommand = new DeleteContentCommand(storage, key);
+            case SET -> iCommand = new SetContentCommand(storage, keyElement, value);
+            case GET -> iCommand = new GetContentCommand(storage, keyElement);
+            case DELETE -> iCommand = new DeleteContentCommand(storage, keyElement);
             case EXIT -> {
                 Main.run = false;
                 jsonResponse.setResponse(true);
@@ -88,13 +92,8 @@ public class Main {
 
         controller.setCommand(iCommand);
         controller.executeCommand();
-        boolean response = controller.getResponse();
-        jsonResponse.setResponse(response);
-        if (response) {
-            jsonResponse.setValue(controller.getOutput());
-        } else {
-            jsonResponse.setReason(controller.getOutput());
-        }
+        jsonResponse = controller.getResponse();
+
         sendMessage(outputStream, jsonResponse);
     }
 

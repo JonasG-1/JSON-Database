@@ -4,7 +4,5 @@ public interface ICommand {
 
     void execute();
 
-    boolean getResponse();
-
-    String getOutput();
+    JsonResponse getResponse();
 }

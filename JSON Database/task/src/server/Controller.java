@@ -12,11 +12,7 @@ public class Controller {
         command.execute();
     }
 
-    public boolean getResponse() {
+    public JsonResponse getResponse() {
         return command.getResponse();
-    }
-
-    public String getOutput() {
-        return command.getOutput();
     }
 }
